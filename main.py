@@ -1,6 +1,7 @@
 """
 Helicopter Rescue Simulator
 Main Application Entry Point
+Supports Dark Cockpit Mode and Clean Tactical Light Mode
 """
 import sys
 import wx
@@ -37,8 +38,8 @@ class MainFrame(wx.Frame):
         # Vertical root sizer: Top Title Bar + Body
         root_sizer = wx.BoxSizer(wx.VERTICAL)
         
-        # 1. Top Title Bar Control
-        self.title_bar = TitleBarControl(self)
+        # 1. Top Title Bar Control with Theme Toggle
+        self.title_bar = TitleBarControl(self, on_toggle_theme=self._on_toggle_theme)
         root_sizer.Add(self.title_bar, 0, wx.EXPAND)
         
         # 2. Main Body: Horizontal split (Left Sidebar, Right Content Area)
@@ -79,6 +80,24 @@ class MainFrame(wx.Frame):
         if hasattr(self, 'content_book') and 0 <= tab_index < self.content_book.GetPageCount():
             self.content_book.ChangeSelection(tab_index)
 
+    def _on_toggle_theme(self):
+        """Toggles theme between Dark and Light mode."""
+        Theme.toggle_theme()
+        self.reload_ui()
+
+    def reload_ui(self):
+        """Cleanly reloads UI with the updated theme styling."""
+        current_tab = getattr(self.sidebar, 'active_tab_index', 0) if hasattr(self, 'sidebar') else 0
+        self.Freeze()
+        for child in list(self.GetChildren()):
+            child.Destroy()
+        self.SetBackgroundColour(Theme.BG_MAIN)
+        self._init_ui()
+        self.sidebar.select_tab(current_tab)
+        self.Thaw()
+        self.Layout()
+        self.Refresh()
+
 
 def main():
     app = wx.App(False)
@@ -87,12 +106,24 @@ def main():
     
     # Check for automated verification mode (--test flag)
     if "--test" in sys.argv or "--test-mode" in sys.argv:
-        print("[TEST] Running automated UI verification...")
+        print("[TEST] Running automated UI verification in Dark Mode...")
         for tab_idx in range(4):
             frame.sidebar.select_tab(tab_idx)
             app.Yield()
-            print(f"[TEST] Switched successfully to Tab {tab_idx}")
-        print("[TEST] All UI components loaded and verified successfully.")
+            print(f"[TEST - DARK] Tab {tab_idx} OK")
+            
+        print("[TEST] Toggling to Light Mode...")
+        frame._on_toggle_theme()
+        app.Yield()
+        for tab_idx in range(4):
+            frame.sidebar.select_tab(tab_idx)
+            app.Yield()
+            print(f"[TEST - LIGHT] Tab {tab_idx} OK")
+            
+        print("[TEST] Toggling back to Dark Mode...")
+        frame._on_toggle_theme()
+        app.Yield()
+        print("[TEST] All UI components in both Dark and Light themes verified successfully.")
         wx.CallLater(300, frame.Close)
         
     app.MainLoop()

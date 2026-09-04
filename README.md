@@ -2,7 +2,7 @@
 
 A modern desktop application built with **wxPython** simulating a Search & Rescue (SAR) tactical dispatch and helicopter flight operations center.
 
-Designed with an immersive dark tactical cockpit theme (`#111317`), high-visibility **Safety Orange** accents (`#FF5E13`), custom double-buffered tab controls, top status bar, and modular view architecture.
+Designed with dual-theme support: an immersive **Dark Tactical Cockpit** theme (`#111317`) and a clean modern **Tactical Light** theme (`#F1F5F9`), paired with high-visibility **Safety Orange** accents (`#FF5E13` / `#EA580C`), custom double-buffered tab controls, top status bar with instant theme switcher, and modular view architecture.
 
 ---
 
@@ -10,6 +10,7 @@ Designed with an immersive dark tactical cockpit theme (`#111317`), high-visibil
 
 - **Standard Window Frame**: `1366 x 768` (Centered, minimum size `1024 x 600`, fully responsive).
 - **Top Title Bar (`Controls/title_bar.py`)**:
+  - **Dynamic Theme Switcher**: Instant one-click toggle between `☀️ LIGHT` and `🌙 DARK` modes.
   - Live UTC Zulu clock.
   - SATCOM telemetry link status (`99.8%`).
   - Active SAR alert level badge (`DEFCON 1 / READY FOR DISPATCH`).

@@ -23,6 +23,12 @@ class RadarScopePanel(wx.Panel):
         self.timer.Start(33)
         
         self.Bind(wx.EVT_PAINT, self._on_paint)
+        self.Bind(wx.EVT_WINDOW_DESTROY, self._on_destroy)
+
+    def _on_destroy(self, event):
+        if hasattr(self, 'timer') and self.timer.IsRunning():
+            self.timer.Stop()
+        event.Skip()
 
     def _on_timer(self, event):
         self.sweep_angle = (self.sweep_angle + 2.5) % 360.0

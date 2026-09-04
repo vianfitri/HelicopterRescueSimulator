@@ -1,6 +1,6 @@
 """
 Helicopter Rescue Simulator - Custom Top Title Bar
-Sleek tactical top bar displaying mission status, UTC Zulu time, and system telemetry badges.
+Sleek tactical top bar displaying mission status, UTC Zulu time, and theme toggle controls.
 """
 import datetime
 import wx
@@ -9,15 +9,17 @@ from Assets.theme import Theme
 
 class TitleBarControl(wx.Panel):
     """
-    Compact modern title bar providing global status, clock, and simulation state.
+    Compact modern title bar providing global status, clock, and theme mode toggle.
     """
-    def __init__(self, parent):
+    def __init__(self, parent, on_toggle_theme=None):
         super().__init__(parent, id=wx.ID_ANY, size=(-1, 46), style=wx.NO_BORDER)
+        self.on_toggle_theme = on_toggle_theme
         self.SetBackgroundColour(Theme.BG_HEADER)
         self.SetBackgroundStyle(wx.BG_STYLE_PAINT)
         self.SetDoubleBuffered(True)
         
         self.Bind(wx.EVT_PAINT, self._on_paint)
+        self.Bind(wx.EVT_WINDOW_DESTROY, self._on_destroy)
         
         # Clock timer (updates UTC clock every second)
         self.timer = wx.Timer(self)
@@ -25,6 +27,11 @@ class TitleBarControl(wx.Panel):
         self.timer.Start(1000)
         
         self._init_ui()
+
+    def _on_destroy(self, event):
+        if hasattr(self, 'timer') and self.timer.IsRunning():
+            self.timer.Stop()
+        event.Skip()
 
     def _init_ui(self):
         sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -53,7 +60,7 @@ class TitleBarControl(wx.Panel):
         sat_lbl = wx.StaticText(self, label="SATCOM: LINKED [99.8%]")
         sat_lbl.SetForegroundColour(Theme.STATUS_CYAN)
         sat_lbl.SetFont(Theme.get_mono_font(size=8, bold=True))
-        sizer.Add(sat_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 20)
+        sizer.Add(sat_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 18)
         
         # Alert Badge Panel
         alert_badge = wx.Panel(self, style=wx.NO_BORDER)
@@ -71,7 +78,16 @@ class TitleBarControl(wx.Panel):
         alert_sizer.Add(alert_text, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.RIGHT, 8)
         
         alert_badge.SetSizer(alert_sizer)
-        sizer.Add(alert_badge, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 20)
+        sizer.Add(alert_badge, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 16)
+        
+        # Theme Toggle Button
+        theme_btn_label = "☀️ LIGHT" if Theme.is_dark else "🌙 DARK"
+        self.theme_btn = wx.Button(self, label=theme_btn_label, size=(78, 28))
+        self.theme_btn.SetBackgroundColour(Theme.BG_CARD)
+        self.theme_btn.SetForegroundColour(Theme.TEXT_PRIMARY)
+        self.theme_btn.SetFont(Theme.get_font(size=8, bold=True))
+        self.theme_btn.Bind(wx.EVT_BUTTON, self._on_theme_btn_click)
+        sizer.Add(self.theme_btn, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 16)
         
         # Zulu Time Display
         self.time_lbl = wx.StaticText(self, label=self._get_zulu_time())
@@ -80,6 +96,10 @@ class TitleBarControl(wx.Panel):
         sizer.Add(self.time_lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 18)
         
         self.SetSizer(sizer)
+
+    def _on_theme_btn_click(self, event):
+        if self.on_toggle_theme:
+            self.on_toggle_theme()
 
     def _get_zulu_time(self):
         now = datetime.datetime.now(datetime.timezone.utc)
