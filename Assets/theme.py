@@ -12,8 +12,8 @@ class Theme:
     BG_MAIN: wx.Colour = wx.Colour(17, 19, 23)
     BG_HEADER: wx.Colour = wx.Colour(23, 26, 32)
     BG_SIDEBAR: wx.Colour = wx.Colour(21, 24, 30)
-    BG_SIDEBAR_ACTIVE: wx.Colour(34, 39, 51)
-    BG_SIDEBAR_HOVER: wx.Colour(28, 32, 40)
+    BG_SIDEBAR_ACTIVE: wx.Colour = wx.Colour(34, 39, 51)
+    BG_SIDEBAR_HOVER: wx.Colour = wx.Colour(28, 32, 40)
     
     BG_CARD: wx.Colour = wx.Colour(26, 30, 38)
     BG_CARD_ALT: wx.Colour = wx.Colour(31, 36, 46)
